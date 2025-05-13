@@ -1,17 +1,20 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 import System.IO (hSetBuffering, stdout, BufferMode(NoBuffering))
---import Data.Aeson
+import GHC.Generics (Generic)
+import Data.Aeson
 
 data Credencial = Credencial {
     titulo :: String,
     usuario :: String,
     password :: String
-} deriving (Eq, Show) --Falta agregar Aeson
+} deriving (Show, Generic) 
 
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     putStrLn "\n--------------------------------"
-    putStrLn "Gestión de Contraseñas"
+    putStrLn "Gestion de Contrasenas"
     putStrLn "1. Consultar todas"
     putStrLn "2. Consultar por servicio"
     putStrLn "3. Consultar por cuenta"
