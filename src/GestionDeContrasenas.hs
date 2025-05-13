@@ -1,14 +1,49 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DeriveAnyClass #-}
+
+module GestionDeContrasenas where
 
 import System.IO (hSetBuffering, stdout, BufferMode(NoBuffering))
 import GHC.Generics (Generic)
 import Data.Aeson
+import Data.IORef (readIORef)
+import SesionActual (currentUser)
 
 data Credencial = Credencial {
     titulo :: String,
     usuario :: String,
     password :: String
-} deriving (Show, Generic) 
+} deriving (Show, Generic)
+
+-- Instancia de Aeson para Credencial
+instance ToJSON Credencial where
+  toJSON (Credencial titulo usuario password) =
+    object ["titulo" .= titulo, "usuario" .= usuario, "password" .= password]
+
+instance FromJSON Credencial where
+  parseJSON = withObject "Credencial" $ \v ->
+    Credencial <$> v .: "titulo"
+               <*> v .: "usuario"
+               <*> v .: "password"
+
+data Cuenta = Cuenta
+  { cuenta :: String,
+    credenciales :: [Credencial]  
+  } deriving (Show, Generic)
+
+-- Instancia de Aeson para Cuenta
+instance ToJSON Cuenta where
+  toJSON (Cuenta cuenta credenciales) =
+    object ["cuenta" .= cuenta, "credenciales" .= credenciales]
+
+instance FromJSON Cuenta where
+  parseJSON = withObject "Cuenta" $ \v ->
+    Cuenta <$> v .: "cuenta"
+           <*> v .: "credenciales"
+
+passwordFile :: FilePath
+passwordFile = "passwords.json"
 
 main :: IO ()
 main = do

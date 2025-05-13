@@ -1,4 +1,4 @@
-module Main where
+module Main(main, currentUser) where
 
 import System.IO (hSetEcho, hGetEcho, stdin, stdout, hFlush)
 import Data.Char (isSpace)
@@ -10,6 +10,10 @@ import System.Directory (doesFileExist, removeFile)
 import Control.Monad (when)
 import Data.List (lines, break)
 import System.Exit (exitSuccess)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import System.IO.Unsafe (unsafePerformIO)
+import SesionActual (currentUser)
+import GestionDeContrasenas
 
 -- Menu principal
 showMenu :: IO ()
@@ -91,7 +95,12 @@ requestPIN = do
       contents <- readFile userFile
       let users = map (splitOn ':') (lines contents)
       case findUser enteredUsername users of
-        Just (_, storedPINHash) -> return (hashPIN enteredPIN == trim storedPINHash)
+        Just (_, storedPINHash) ->
+          if hashPIN enteredPIN == trim storedPINHash
+            then do
+              writeIORef currentUser enteredUsername  
+              return True
+            else return False
         Nothing -> do
           putStrLn "Nombre de usuario no encontrado."
           return False
@@ -107,7 +116,7 @@ trim = reverse . dropWhile isSpace . reverse
 copyToClipboard :: String -> IO ()
 copyToClipboard text = callCommand $ "echo " ++ text ++ " | clip"
 
--- Menú
+-- Menu
 handleMenuSelection :: IO ()
 handleMenuSelection = do
   option <- getLine
@@ -117,7 +126,10 @@ handleMenuSelection = do
       if accessGranted
         then do
           putStrLn "\nInicio de sesion exitoso!"
-          -- AGREGAR LO DE LAS CONTRASENAASSSSSSSSSSS ----------------
+          maybeUsername <- readIORef currentUser
+          case maybeUsername of
+            Just username -> putStrLn $ "Bienvenido, " ++ username
+            Nothing -> putStrLn "Error, no se pudo cargar el usuario."
           putStrLn "Pendiente............."
           showMenu
           handleMenuSelection
