@@ -130,9 +130,7 @@ handleMenuSelection = do
           case maybeUsername of
             Just username -> putStrLn $ "Bienvenido, " ++ username
             Nothing -> putStrLn "Error, no se pudo cargar el usuario."
-          putStrLn "Pendiente............."
-          showMenu
-          handleMenuSelection
+          iniciarGestion
         else do
           putStrLn "\nError en las credenciales"
           showMenu
