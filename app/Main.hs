@@ -98,7 +98,7 @@ requestPIN = do
         Just (_, storedPINHash) ->
           if hashPIN enteredPIN == trim storedPINHash
             then do
-              writeIORef currentUser enteredUsername  
+              writeIORef currentUser (Just enteredUsername)  
               return True
             else return False
         Nothing -> do

@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module GestionDeContrasenas where
 
@@ -45,8 +46,8 @@ instance FromJSON Cuenta where
 passwordFile :: FilePath
 passwordFile = "passwords.json"
 
-main :: IO ()
-main = do
+iniciarGestion  :: IO ()
+iniciarGestion  = do
     hSetBuffering stdout NoBuffering
     putStrLn "\n--------------------------------"
     putStrLn "Gestion de Contrasenas"
@@ -64,21 +65,21 @@ main = do
         "1" -> do
             putStrLn "\n--------------------------------"
             -- Mostrar todas las cuentas
-            main
+            iniciarGestion
 
         "2" -> do
             putStrLn "\n--------------------------------"
             putStrLn "Ingrese un servicio: "
             texto <- getLine
 
-            main
+            iniciarGestion
 
         "3" -> do
             putStrLn "\n--------------------------------"
             putStrLn "Ingrese el nombre de la cuenta: "
             texto <- getLine
             
-            main
+            iniciarGestion
             
         "4" -> do
             putStrLn "\n--------------------------------"
@@ -91,7 +92,7 @@ main = do
             putStrLn "Ingrese su contraseña: "
             password <- getLine
             
-            main
+            iniciarGestion
             
         "5" -> do
             putStrLn "\n--------------------------------"
@@ -101,17 +102,17 @@ main = do
             putStrLn "Ingrese el dato a modificar (usuario/contraseña): "
             dato <- getLine
             
-            main
+            iniciarGestion
 
         "6" -> do
             putStrLn "\n--------------------------------"
             putStrLn "Ingrese un servicio: "
             servicio <- getLine
             
-            main
+            iniciarGestion
 
         "7" -> putStrLn "Saliendo del programa..."
         
         _ -> do
             putStrLn "Opción no válida. Intente nuevamente."
-            main
+            iniciarGestion
