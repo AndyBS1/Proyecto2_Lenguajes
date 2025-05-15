@@ -42,6 +42,37 @@ agregarCredencialACuenta nombreUsuario nuevaCredencial =
       | nombre == nombreUsuario = Cuenta nombre (nuevaCredencial : creds)
       | otherwise = cuenta
 
+consultarTodasCredenciales :: IO ()
+consultarTodasCredenciales = do
+    maybeUsuario <- readIORef currentUser
+    case maybeUsuario of
+      Nothing -> putStrLn "ERROR. No se ha encontrado una sesión activa."
+      Just usuarioActual -> do
+        existe <- doesFileExist passwordFile
+        if not existe 
+          then putStrLn "No hay cuentas registradas aún."
+          else do
+            contenido <- B.readFile passwordFile
+            case decode contenido :: Maybe [Cuenta] of
+              Nothing -> putStrLn "Error al leer las cuentas."
+              Just cuentas -> do
+                let cuentaUsuario = filter (\(Cuenta nombre _) -> nombre == usuarioActual) cuentas
+                case cuentaUsuario of
+                  [] -> putStrLn "No se encontró la cuenta para el usuario actual."
+                  (Cuenta _ credenciales : _) -> do
+                    if null credenciales
+                      then putStrLn "No hay credenciales guardadas para esta cuenta."
+                      else do
+                        putStrLn $ "\nCredenciales de: " ++ usuarioActual
+                        mapM_ imprimirCredencial credenciales
+
+imprimirCredencial :: Credencial -> IO ()
+imprimirCredencial (Credencial titulo usuario password) = do
+    putStrLn "-------------------------"
+    putStrLn $ "Servicio: " ++ titulo
+    putStrLn $ "Usuario: " ++ usuario
+    putStrLn $ "Contraseña: " ++ password
+
 iniciarGestion  :: IO ()
 iniciarGestion  = do
     hSetBuffering stdout NoBuffering
@@ -70,7 +101,7 @@ iniciarGestion  = do
 
         -- Menu
         putStrLn "\n--------------------------------"
-        putStrLn "Gestion de Contrasenas"
+        putStrLn "Gestion de Contraseñas"
         putStrLn "1. Consultar todas"
         putStrLn "2. Consultar por servicio"
         putStrLn "3. Consultar por cuenta"
@@ -84,7 +115,7 @@ iniciarGestion  = do
         case opcion of
             "1" -> do
                 putStrLn "\n--------------------------------"
-                -- Mostrar todas las cuentas
+                consultarTodasCredenciales
                 iniciarGestion
 
             "2" -> do
@@ -109,7 +140,7 @@ iniciarGestion  = do
                 putStrLn "Ingrese el usuario: "
                 usuario <- getLine
 
-                putStrLn "Ingrese su contrasena: "
+                putStrLn "Ingrese su contraseña: "
                 password <- getLine
                 
                 let nuevaCredencial = Credencial servicio usuario password

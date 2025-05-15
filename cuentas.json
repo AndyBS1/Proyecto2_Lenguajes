@@ -4,6 +4,16 @@
             {
                 "password": "1234",
                 "titulo": "Netflix",
+                "usuario": "JuanNetflix"
+            }
+        ],
+        "cuenta": "Juan"
+    },
+    {
+        "credenciales": [
+            {
+                "password": "1234",
+                "titulo": "Netflix",
                 "usuario": "AndresNetflix"
             },
             {
