@@ -1,0 +1,17 @@
+[
+    {
+        "credenciales": [
+            {
+                "password": "1234",
+                "titulo": "Netflix",
+                "usuario": "AndresNetflix"
+            },
+            {
+                "password": "1234",
+                "titulo": "Instagram",
+                "usuario": "AndresInstagram"
+            }
+        ],
+        "cuenta": "Andres"
+    }
+]
