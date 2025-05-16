@@ -119,6 +119,35 @@ consultarPorServicio = do
                                     mapM_ imprimirCredencialEspecifica credencialesFiltradas
                                     putStrLn $ replicate 50 '-'
 
+consultarPorUsuario :: IO ()
+consultarPorUsuario = do
+    maybeUsuario <- readIORef currentUser
+    case maybeUsuario of
+        Nothing -> putStrLn "ERROR. No se ha encontrado una sesión activa."
+        Just usuarioActual -> do
+            putStrLn "Ingrese el nombre de la cuenta: "
+            usuarioBuscado <- getLine
+
+            existe <- doesFileExist passwordFile
+            if not existe 
+              then putStrLn "No hay cuentas registradas aún."
+              else do
+                contenido <- B.readFile passwordFile
+                case decode contenido :: Maybe [Cuenta] of
+                    Nothing -> putStrLn "Error al leer las cuentas."
+                    Just cuentas -> do
+                        let cuentaUsuario = filter (\(Cuenta nombre _) -> nombre == usuarioActual) cuentas
+                        case cuentaUsuario of
+                            [] -> putStrLn "No se encontró la cuenta del usuario actual."
+                            (Cuenta _ credenciales : _) -> do
+                                let credencialesFiltradas = filter (\credencial -> usuario credencial == usuarioBuscado) credenciales
+                                if null credencialesFiltradas
+                                  then putStrLn "No se encontraron credenciales para ese nombre de usuario."
+                                  else do
+                                    putStrLn $ replicate 50 '-'
+                                    mapM_ imprimirCredencialEspecifica credencialesFiltradas
+                                    putStrLn $ replicate 50 '-'
+
 -- Imprimir en otro formato (No el de la tabla)
 imprimirCredencialEspecifica :: Credencial -> IO ()
 imprimirCredencialEspecifica (Credencial titulo usuario password) = do
@@ -178,9 +207,7 @@ iniciarGestion  = do
 
             "3" -> do
                 putStrLn "\n--------------------------------"
-                putStrLn "Ingrese el nombre de la cuenta: "
-                texto <- getLine
-                
+                consultarPorUsuario  
                 iniciarGestion
                 
             "4" -> do
