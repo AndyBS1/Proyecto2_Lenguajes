@@ -69,11 +69,12 @@ consultarTodasCredenciales = do
                         putStrLn $ replicate 50 '-'
                         mapM_ imprimirCredenciales credenciales
 
+-- Imprimir en formato tabla
 imprimirCredenciales :: Credencial -> IO ()
 imprimirCredenciales (Credencial titulo usuario _) = do
     let tituloTabla = ajustarTexto titulo 15
     let usuarioTabla = ajustarTexto (ocultarUsuario usuario) 15
-    let passwordTabla = ajustarTexto (simularAsteriscos 10) 15
+    let passwordTabla = ajustarTexto (simularAsteriscos 8) 15
     putStrLn $ tituloTabla ++ " | " ++ usuarioTabla ++ " | " ++ passwordTabla
 
 ocultarUsuario :: String -> String
@@ -89,12 +90,41 @@ ajustarTexto str ancho
   | length str >= ancho = take ancho str
   | otherwise = str ++ replicate (ancho - length str) ' '
 
+consultarPorServicio :: IO ()
+consultarPorServicio = do
+    maybeUsuario <- readIORef currentUser
+    case maybeUsuario of
+        Nothing -> putStrLn "ERROR. No se ha encontrado una sesión activa."
+        Just usuarioActual -> do
+            putStrLn "Ingrese un servicio: "
+            servicioBuscado <- getLine
+
+            existe <- doesFileExist passwordFile
+            if not existe 
+              then putStrLn "No hay cuentas registradas aún."
+              else do
+                contenido <- B.readFile passwordFile
+                case decode contenido :: Maybe [Cuenta] of
+                    Nothing -> putStrLn "Error al leer las cuentas."
+                    Just cuentas -> do
+                        let cuentaUsuario = filter (\(Cuenta nombre _) -> nombre == usuarioActual) cuentas
+                        case cuentaUsuario of
+                            [] -> putStrLn "No se encontró la cuenta del usuario actual."
+                            (Cuenta _ credenciales : _) -> do
+                                let credencialesFiltradas = filter (\credencial -> titulo credencial == servicioBuscado) credenciales
+                                if null credencialesFiltradas
+                                  then putStrLn "No se encontraron credenciales para ese servicio."
+                                  else do
+                                    putStrLn $ replicate 50 '-'
+                                    mapM_ imprimirCredencialEspecifica credencialesFiltradas
+                                    putStrLn $ replicate 50 '-'
+
+-- Imprimir en otro formato (No el de la tabla)
 imprimirCredencialEspecifica :: Credencial -> IO ()
 imprimirCredencialEspecifica (Credencial titulo usuario password) = do
-    putStrLn "-------------------------"
     putStrLn $ "Servicio: " ++ titulo
-    putStrLn $ "Usuario: " ++ usuario
-    putStrLn $ "Contraseña: " ++ password
+    putStrLn $ "Usuario: " ++ ocultarUsuario usuario
+    putStrLn $ "Contraseña: " ++ simularAsteriscos 8
 
 iniciarGestion  :: IO ()
 iniciarGestion  = do
@@ -124,7 +154,7 @@ iniciarGestion  = do
 
         -- Menu
         putStrLn "\n--------------------------------"
-        putStrLn "Gestion de Contraseñas"
+        putStrLn "=== Gestion de Contraseñas ==="
         putStrLn "1. Consultar todas"
         putStrLn "2. Consultar por servicio"
         putStrLn "3. Consultar por cuenta"
@@ -143,9 +173,7 @@ iniciarGestion  = do
 
             "2" -> do
                 putStrLn "\n--------------------------------"
-                putStrLn "Ingrese un servicio: "
-                texto <- getLine
-
+                consultarPorServicio
                 iniciarGestion
 
             "3" -> do
