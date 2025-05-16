@@ -154,6 +154,17 @@ imprimirCredencialEspecifica (Credencial titulo usuario password) = do
     putStrLn $ "Servicio: " ++ titulo
     putStrLn $ "Usuario: " ++ ocultarUsuario usuario
     putStrLn $ "Contraseña: " ++ simularAsteriscos 8
+  
+eliminarCredencial :: String -> String -> [Cuenta] -> ([Cuenta], Bool)
+eliminarCredencial usuarioActual servicioAEliminar cuentas =
+  let (nuevasCuentas, huboCambio) = unzip $ map actualizarCredenciales cuentas
+  in (nuevasCuentas, or huboCambio)
+  where
+    actualizarCredenciales (Cuenta nombre credenciales)
+      | nombre == usuarioActual =
+          let nuevasCredenciales = filter (\credencial -> titulo credencial /= servicioAEliminar) credenciales
+          in (Cuenta nombre nuevasCredenciales, length credenciales /= length nuevasCredenciales)
+      | otherwise = (Cuenta nombre credenciales, False)
 
 iniciarGestion  :: IO ()
 iniciarGestion  = do
@@ -254,10 +265,29 @@ iniciarGestion  = do
                 iniciarGestion
 
             "6" -> do
-                putStrLn "\n--------------------------------"
-                putStrLn "Ingrese un servicio: "
-                servicio <- getLine
-                
+                maybeUsuario <- readIORef currentUser
+                case maybeUsuario of
+                  Nothing -> putStrLn "ERROR. No se ha encontrado una sesión activa."
+                  Just usuarioActual -> do
+                    putStrLn "\n--------------------------------"
+                    putStrLn "Ingrese un servicio: "
+                    servicio <- getLine
+
+                    existe <- doesFileExist passwordFile
+                    if not existe 
+                      then putStrLn "No hay cuentas registradas aún."
+                      else do
+                        contenido <- B.readFile passwordFile
+                        case decode contenido :: Maybe [Cuenta] of
+                          Nothing -> putStrLn "Error al leer las cuentas."
+                          Just cuentas -> do
+                            let (cuentasActualizadas, seElimino) = eliminarCredencial usuarioActual servicio cuentas
+                            if not seElimino
+                              then putStrLn "No se encontró una credencial asociada al servicio."
+                              else do
+                                B.writeFile passwordFile (encode cuentasActualizadas)
+                                putStrLn "Credencial eliminada exitosamente."
+
                 iniciarGestion
 
             "7" -> putStrLn "Saliendo del programa..."
