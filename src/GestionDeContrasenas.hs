@@ -64,10 +64,33 @@ consultarTodasCredenciales = do
                       then putStrLn "No hay credenciales guardadas para esta cuenta."
                       else do
                         putStrLn $ "\nCredenciales de: " ++ usuarioActual
-                        mapM_ imprimirCredencial credenciales
+                        putStrLn $ replicate 50 '-'
+                        putStrLn $ ajustarTexto "Título" 15 ++ " | " ++ ajustarTexto "Usuario" 15 ++ " | " ++ ajustarTexto "Contraseña" 15
+                        putStrLn $ replicate 50 '-'
+                        mapM_ imprimirCredenciales credenciales
 
-imprimirCredencial :: Credencial -> IO ()
-imprimirCredencial (Credencial titulo usuario password) = do
+imprimirCredenciales :: Credencial -> IO ()
+imprimirCredenciales (Credencial titulo usuario _) = do
+    let tituloTabla = ajustarTexto titulo 15
+    let usuarioTabla = ajustarTexto (ocultarUsuario usuario) 15
+    let passwordTabla = ajustarTexto (simularAsteriscos 10) 15
+    putStrLn $ tituloTabla ++ " | " ++ usuarioTabla ++ " | " ++ passwordTabla
+
+ocultarUsuario :: String -> String
+ocultarUsuario usuario
+    | length usuario <= 4 = replicate (length usuario) '*'
+    | otherwise = take 4 usuario ++ replicate (length usuario - 4) '*'
+
+simularAsteriscos :: Int -> String
+simularAsteriscos n = replicate n '*'
+
+ajustarTexto :: String -> Int -> String
+ajustarTexto str ancho
+  | length str >= ancho = take ancho str
+  | otherwise = str ++ replicate (ancho - length str) ' '
+
+imprimirCredencialEspecifica :: Credencial -> IO ()
+imprimirCredencialEspecifica (Credencial titulo usuario password) = do
     putStrLn "-------------------------"
     putStrLn $ "Servicio: " ++ titulo
     putStrLn $ "Usuario: " ++ usuario
