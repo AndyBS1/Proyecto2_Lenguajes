@@ -13,6 +13,7 @@ import SesionActual (currentUser)
 import qualified Data.ByteString.Lazy as B
 import Control.Monad (when)
 import System.Directory (doesFileExist)
+import Cifrado (cifrar, descifrar)
 
 data Credencial = Credencial {
     titulo :: String,
