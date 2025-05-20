@@ -166,6 +166,25 @@ eliminarCredencial usuarioActual servicioAEliminar cuentas =
           in (Cuenta nombre nuevasCredenciales, length credenciales /= length nuevasCredenciales)
       | otherwise = (Cuenta nombre credenciales, False)
 
+modificarCredencial :: String -> String -> String -> String -> [Cuenta] -> ([Cuenta], Bool)
+modificarCredencial usuarioActual servicio campoAModificar nuevoValor cuentas =
+  let (cuentasActualizadas, modificaciones) = unzip $ map actualizarCuenta cuentas
+  in (cuentasActualizadas, or modificaciones)
+  where
+    actualizarCuenta (Cuenta nombre credenciales)
+      | nombre == usuarioActual =
+          let (nuevasCredenciales, cambios) = unzip $ map credencialEspecifica credenciales
+          in (Cuenta nombre nuevasCredenciales, or cambios)
+      | otherwise = (Cuenta nombre credenciales, False)
+
+    credencialEspecifica credencial
+      | titulo credencial == servicio =
+          case campoAModificar of
+            "usuario"    -> (credencial { usuario = nuevoValor }, True)
+            "contrasena" -> (credencial { password = nuevoValor }, True)
+            _            -> (credencial, False)
+      | otherwise = (credencial, False)
+
 iniciarGestion  :: IO ()
 iniciarGestion  = do
     hSetBuffering stdout NoBuffering
@@ -259,9 +278,31 @@ iniciarGestion  = do
                 putStrLn "Ingrese un servicio: "
                 servicio <- getLine
 
-                putStrLn "Ingrese el dato a modificar (usuario/contraseña): "
-                dato <- getLine
-                
+                putStrLn "Ingrese el dato a modificar (usuario/contrasena): "
+                campoAModificar <- getLine
+
+                putStrLn $ "Ingrese el nuevo " ++ campoAModificar ++ ":"
+                nuevoValor <- getLine
+
+                maybeUsuario <- readIORef currentUser
+                case maybeUsuario of
+                  Nothing -> putStrLn "ERROR. No hay sesión activa."
+                  Just usuarioActual -> do
+                    existe <- doesFileExist passwordFile
+                    if not existe
+                      then putStrLn "No hay cuentas registradas aún."
+                      else do
+                        contenido <- B.readFile passwordFile
+                        case decode contenido :: Maybe [Cuenta] of
+                          Nothing -> putStrLn "Error al leer las cuentas."
+                          Just cuentas -> do
+                            let (cuentasActualizadas, fueModificada) = modificarCredencial usuarioActual servicio campoAModificar nuevoValor cuentas
+                            if not fueModificada
+                              then putStrLn "No se encontró la credencial o el campo no es válido."
+                              else do
+                                B.writeFile passwordFile (encode cuentasActualizadas)
+                                putStrLn "Credencial modificada exitosamente."
+
                 iniciarGestion
 
             "6" -> do

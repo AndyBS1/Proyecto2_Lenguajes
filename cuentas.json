@@ -12,6 +12,11 @@
     {
         "credenciales": [
             {
+                "password": "4321",
+                "titulo": "Netflix",
+                "usuario": "UserModificado"
+            },
+            {
                 "password": "1234",
                 "titulo": "TikTok",
                 "usuario": "and_3010"
