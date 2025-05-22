@@ -14,6 +14,7 @@ import qualified Data.ByteString.Lazy as B
 import Control.Monad (when)
 import System.Directory (doesFileExist)
 import Cifrado (cifrar, descifrar)
+import System.Process (callCommand)
 
 data Credencial = Credencial {
     titulo :: String,
@@ -127,6 +128,25 @@ consultarPorServicio = do
                                     putStrLn $ replicate 50 '-'
                                     mapM_ imprimirCredencialEspecifica credencialesFiltradas
                                     putStrLn $ replicate 50 '-'
+                                    putStrLn "=== Menú de opciones para copiar al portapapeles ==="
+                                    putStrLn "1. Usuario"
+                                    putStrLn "2. Contraseña"
+                                    putStrLn "3. Salir"
+                                    opcion <- getLine
+                                    let credencial = head credencialesFiltradas
+                                    case opcion of
+                                        "1" -> do
+                                            copyToClipboard (usuario credencial)
+                                            putStrLn "Usuario copiado al portapapeles."
+                                        "2" -> do
+                                            copyToClipboard (descifrar (password credencial))
+                                            putStrLn "Contraseña copiada al portapapeles."
+                                        "3" -> putStrLn "No se ha copiado ningún dato al portapapeles."
+                                        _   -> putStrLn "Opción no válida."
+
+-- Copiar al portapapeles
+copyToClipboard :: String -> IO ()
+copyToClipboard text = callCommand $ "echo " ++ text ++ " | clip"
 
 consultarPorUsuario :: IO ()
 consultarPorUsuario = do
