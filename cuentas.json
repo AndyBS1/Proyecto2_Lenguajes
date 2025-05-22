@@ -2,7 +2,7 @@
     {
         "credenciales": [
             {
-                "password": "1234",
+                "password": "MGxNnYZQBtCqdzlOEkWpFw==",
                 "titulo": "Netflix",
                 "usuario": "JuanNetflix"
             }
@@ -15,16 +15,6 @@
                 "password": "+oIwHu9nrirxxvXRRnfwjw==",
                 "titulo": "Netflix",
                 "usuario": "UserModificado"
-            },
-            {
-                "password": "1234",
-                "titulo": "TikTok",
-                "usuario": "and_3010"
-            },
-            {
-                "password": "1234",
-                "titulo": "Instagram",
-                "usuario": "AndresInstagram"
             }
         ],
         "cuenta": "Andres"

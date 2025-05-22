@@ -5,7 +5,7 @@
 
 module GestionDeContrasenas where
 
-import System.IO (hSetBuffering, stdout, BufferMode(NoBuffering))
+import System.IO (hSetBuffering, hSetEcho, hGetEcho, stdin, stdout, BufferMode(NoBuffering))
 import GHC.Generics (Generic)
 import Data.Aeson
 import Data.IORef (readIORef)
@@ -34,6 +34,14 @@ instance FromJSON Cuenta
 
 passwordFile :: FilePath
 passwordFile = "cuentas.json"
+
+withEcho_GC :: Bool -> IO String -> IO String
+withEcho_GC echo action = do
+  old <- hGetEcho stdin
+  hSetEcho stdin echo
+  x <- action
+  hSetEcho stdin old
+  return x
 
 agregarCredencialACuenta :: String -> Credencial -> [Cuenta] -> [Cuenta]
 agregarCredencialACuenta nombreUsuario nuevaCredencial =
@@ -153,7 +161,7 @@ consultarPorUsuario = do
 imprimirCredencialEspecifica :: Credencial -> IO ()
 imprimirCredencialEspecifica (Credencial titulo usuario password) = do
     putStrLn $ "Servicio: " ++ titulo
-    putStrLn $ "Usuario: " ++ ocultarUsuario usuario
+    putStrLn $ "Usuario: " ++ usuario
     putStrLn $ "Contraseña: " ++ descifrar password
   
 eliminarCredencial :: String -> String -> [Cuenta] -> ([Cuenta], Bool)
@@ -250,7 +258,8 @@ iniciarGestion  = do
                 usuario <- getLine
 
                 putStrLn "Ingrese su contraseña: "
-                password <- getLine
+                password <- withEcho_GC False getLine
+                putStrLn ""
                 let passwordCifrado = cifrar password
                 let nuevaCredencial = Credencial servicio usuario passwordCifrado
 
@@ -282,11 +291,22 @@ iniciarGestion  = do
                 putStrLn "Ingrese el dato a modificar (usuario/contrasena): "
                 campoAModificar <- getLine
 
-                putStrLn $ "Ingrese el nuevo " ++ campoAModificar ++ ":"
-                nuevoValor_input <- getLine
+                let mensaje = case campoAModificar of
+                      "usuario"    -> "Ingrese el nuevo nombre de usuario: "
+                      "contrasena" -> "Ingrese la nueva contraseña: "
+                      _            -> "Ingrese el nuevo valor: "
+                putStrLn mensaje
+
+                nuevoValor_input <- if campoAModificar == "contrasena"
+                                      then do
+                                        valor <- withEcho_GC False getLine
+                                        putStrLn ""
+                                        return valor
+                                        else getLine
+
                 let nuevoValor = if campoAModificar == "contrasena"
                                   then cifrar nuevoValor_input
-                                else nuevoValor_input
+                                  else nuevoValor_input
 
                 maybeUsuario <- readIORef currentUser
                 case maybeUsuario of
