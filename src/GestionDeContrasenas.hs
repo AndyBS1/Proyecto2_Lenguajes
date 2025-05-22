@@ -154,7 +154,7 @@ imprimirCredencialEspecifica :: Credencial -> IO ()
 imprimirCredencialEspecifica (Credencial titulo usuario password) = do
     putStrLn $ "Servicio: " ++ titulo
     putStrLn $ "Usuario: " ++ ocultarUsuario usuario
-    putStrLn $ "Contraseña: " ++ simularAsteriscos 8
+    putStrLn $ "Contraseña: " ++ descifrar password
   
 eliminarCredencial :: String -> String -> [Cuenta] -> ([Cuenta], Bool)
 eliminarCredencial usuarioActual servicioAEliminar cuentas =
@@ -251,8 +251,8 @@ iniciarGestion  = do
 
                 putStrLn "Ingrese su contraseña: "
                 password <- getLine
-                
-                let nuevaCredencial = Credencial servicio usuario password
+                let passwordCifrado = cifrar password
+                let nuevaCredencial = Credencial servicio usuario passwordCifrado
 
                 let yaExisteServicio = any (\(Cuenta nombre creds) ->
                                       nombre == enteredUsername &&
@@ -283,7 +283,10 @@ iniciarGestion  = do
                 campoAModificar <- getLine
 
                 putStrLn $ "Ingrese el nuevo " ++ campoAModificar ++ ":"
-                nuevoValor <- getLine
+                nuevoValor_input <- getLine
+                let nuevoValor = if campoAModificar == "contrasena"
+                                  then cifrar nuevoValor_input
+                                else nuevoValor_input
 
                 maybeUsuario <- readIORef currentUser
                 case maybeUsuario of

@@ -11,11 +11,11 @@ import qualified Data.ByteString.Base64 as B64
 
 -- Clave de 32 bytes 
 clave :: BS.ByteString
-clave = "12345678901234567890123456789012"
+clave = "xT7$1wqzD8!kV0cPb@F9lMjx#3uRz1Wa"
 
 -- Vector de inicialización
 ivBytes :: BS.ByteString
-ivBytes = "1234567890123456"
+ivBytes = "Z1u2b3Nc4Vr5Ty6H"
 
 cifrar :: String -> String
 cifrar texto =
