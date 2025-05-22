@@ -1,0 +1,22 @@
+[
+    {
+        "credenciales": [
+            {
+                "password": "MGxNnYZQBtCqdzlOEkWpFw==",
+                "titulo": "Netflix",
+                "usuario": "JuanNetflix"
+            }
+        ],
+        "cuenta": "Juan"
+    },
+    {
+        "credenciales": [
+            {
+                "password": "+oIwHu9nrirxxvXRRnfwjw==",
+                "titulo": "Netflix",
+                "usuario": "UserModificado"
+            }
+        ],
+        "cuenta": "Andres"
+    }
+]
