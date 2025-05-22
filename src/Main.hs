@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Main where
+module Main(main, currentUser) where
 
 import GHC.Generics (Generic)
 import System.IO (hSetEcho, hGetEcho, stdin, stdout, hFlush, getChar)
@@ -15,6 +15,10 @@ import System.Process (callCommand)
 import System.Directory (doesFileExist)
 import System.Exit (exitSuccess)
 import Data.Aeson (FromJSON, ToJSON, decodeFileStrict, encodeFile)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import System.IO.Unsafe (unsafePerformIO)
+import SesionActual (currentUser)
+import GestionDeContrasenas
 
 -- Estructura de usuario
 data UserInfo = UserInfo
@@ -103,7 +107,9 @@ requestPIN = do
   case find (\u -> username u == enteredUsername) users of
     Just user ->
       if hashPIN enteredPIN == pinHash user
-        then return True
+        then do
+          writeIORef currentUser (Just enteredUsername)
+          return True
         else putStrLn "PIN incorrecto." >> return False
     Nothing -> putStrLn "Usuario no encontrado." >> return False
 
@@ -127,8 +133,11 @@ handleMenuSelection = do
       if accessGranted
         then do
           putStrLn "\nInicio de sesión exitoso!"
-          -- Aquí va la parte 2.2 (Gestión de contraseñas)
-          putStrLn "Funcionalidad de contraseñas aún no implementada."
+          maybeUsername <- readIORef currentUser
+          case maybeUsername of
+            Just username -> putStrLn $ "Bienvenido, " ++ username
+            Nothing -> putStrLn "Error, no se pudo cargar el usuario."
+          iniciarGestion
         else putStrLn "Acceso denegado."
       showMenu
       handleMenuSelection
