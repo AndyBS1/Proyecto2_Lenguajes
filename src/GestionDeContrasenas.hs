@@ -16,6 +16,7 @@ import System.Directory (doesFileExist)
 import Cifrado (cifrar, descifrar)
 import System.Process (callCommand)
 
+
 data Credencial = Credencial {
     titulo :: String,
     usuario :: String,

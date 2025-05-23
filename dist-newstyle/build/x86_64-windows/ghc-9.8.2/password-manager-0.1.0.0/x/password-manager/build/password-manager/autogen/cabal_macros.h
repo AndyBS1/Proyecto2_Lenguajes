@@ -70,16 +70,16 @@
   (major1) == 0 && (major2) <  12 || \
   (major1) == 0 && (major2) == 12 && (minor) <= 1)
 #endif /* MIN_VERSION_bytestring */
-/* package cryptohash-0.11.9 */
-#ifndef VERSION_cryptohash
-#define VERSION_cryptohash "0.11.9"
-#endif /* VERSION_cryptohash */
-#ifndef MIN_VERSION_cryptohash
-#define MIN_VERSION_cryptohash(major1,major2,minor) (\
+/* package cryptonite-0.30 */
+#ifndef VERSION_cryptonite
+#define VERSION_cryptonite "0.30"
+#endif /* VERSION_cryptonite */
+#ifndef MIN_VERSION_cryptonite
+#define MIN_VERSION_cryptonite(major1,major2,minor) (\
   (major1) <  0 || \
-  (major1) == 0 && (major2) <  11 || \
-  (major1) == 0 && (major2) == 11 && (minor) <= 9)
-#endif /* MIN_VERSION_cryptohash */
+  (major1) == 0 && (major2) <  30 || \
+  (major1) == 0 && (major2) == 30 && (minor) <= 0)
+#endif /* MIN_VERSION_cryptonite */
 /* package directory-1.3.8.1 */
 #ifndef VERSION_directory
 #define VERSION_directory "1.3.8.1"
@@ -100,6 +100,16 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 3)
 #endif /* MIN_VERSION_echo */
+/* package hashable-1.5.0.0 */
+#ifndef VERSION_hashable
+#define VERSION_hashable "1.5.0.0"
+#endif /* VERSION_hashable */
+#ifndef MIN_VERSION_hashable
+#define MIN_VERSION_hashable(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  5 || \
+  (major1) == 1 && (major2) == 5 && (minor) <= 0)
+#endif /* MIN_VERSION_hashable */
 /* package memory-0.18.0 */
 #ifndef VERSION_memory
 #define VERSION_memory "0.18.0"
